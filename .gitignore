@@ -427,3 +427,11 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# ===== LineBot.Api 專屬：地端資料與憑證，絕對不進版控 =====
+# business.md（店家知識）與 blocklist.db（黑名單）：正式環境用 docker-compose volume 掛載，
+# 內容屬於營運資料而非程式碼，且黑名單資料庫也不該被提交。
+data/
+# Kestrel 用的 pfx 憑證。
+certs/
+
