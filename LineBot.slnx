@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/LineBot.Api.Tests/LineBot.Api.Tests.csproj" />
+    <Project Path="src/LineBot.Api/LineBot.Api.csproj" />
+  </Folder>
+</Solution>

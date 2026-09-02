@@ -1,0 +1,30 @@
+services:
+  linebot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: linghsiang-line-bot
+    ports:
+      # 注意：Mac mini 上已經有另一個網站容器（linghsiang-web）佔用了 host 443，
+      # 兩個容器不能同時把 container 443 綁到同一個 host 443，因此這裡把 host 的 8443 對應到本服務的 443。
+      # Cloudflare／router 的 port forwarding 要另外設定一條規則，把 LINE Bot 用的網域／子網域
+      # （例如 linebot.<你的網域>）轉發到 host 的 8443，主網站則維持轉發到 443，兩者互不影響。
+      - "8443:443"
+    volumes:
+      - ./certs:/app/certs
+      # 資料目錄：business.md（店家知識，Phase 4）與 blocklist.db（黑名單，Phase 5）都在這裡，
+      # 掛載成 volume 是為了讓「改 business.md 不用重建容器」「重建容器不會清空黑名單」這兩件事成立。
+      # ./data 已加入 .gitignore，與程式碼版控完全分離。
+      - ./data:/app/data
+    environment:
+      - CERT_PASSWORD=${CERT_PASSWORD}
+      - ASPNETCORE_ENVIRONMENT=Production
+      # 以下機密值由同層的 .env 檔（不進版控）提供，這裡只是把它們透過 docker-compose 的
+      # 變數代換語法（Options Pattern 用雙底線代表巢狀層級）注入到容器的環境變數。
+      - Line__ChannelSecret=${LINE_CHANNEL_SECRET}
+      - Line__ChannelAccessToken=${LINE_CHANNEL_ACCESS_TOKEN}
+      - Ollama__Cloud__ApiKey=${OLLAMA_CLOUD_API_KEY}
+      # macOS Docker Desktop 專用的特殊主機名稱，讓容器連回 host 上跑的地端 Ollama（見開發計劃 Phase 6 注意事項）。
+      - Ollama__Local__BaseUrl=http://host.docker.internal:11434/api/
+      - Admin__ApiKey=${ADMIN_API_KEY}
+    restart: unless-stopped
